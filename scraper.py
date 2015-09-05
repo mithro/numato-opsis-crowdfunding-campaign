@@ -31,15 +31,25 @@ left, percent_funded, pledges = facts
 pledged = project.find(attrs={'class': 'project-pledged'}).text.strip()
 goal = project.find(attrs={'class': 'project-goal'}).text.strip()
 
-print ",".join([str(time.time()), pledged, goal, left, percent_funded, pledges])
+
+ends = page.find(attrs={'class': 'project-remind-me'}).find('p').text.split(' on ')[-1]
 
 data={
   'time': time.time(), 
   'pledged': int(pledged.split()[0][1:].replace(',', '')),
   'goal': int(goal.split()[1][1:].replace(',', '')), 
   'percent_funded': int(percent_funded.split()[0][:-1]),
-  'pledges': int(pledges.split()[0])}
+  'pledges': int(pledges.split()[0]),
+  'left': left,
+  'ends': ends,
+}
 print data
+print
+print "%(pledges)i pledges - $%(pledged)i of $%(goal)i (%(percent_funded)s%%) - Ends %(ends)s (%(left)s)" % data
+print
+project_box = page.find('div', attrs={'class': 'project-block'})
+print project_box
+print
 
 import scraperwiki
 scraperwiki.sqlite.save(data=data)
