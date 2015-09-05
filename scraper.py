@@ -1,24 +1,44 @@
-# This is a template for a Python scraper on morph.io (https://morph.io)
-# including some code snippets below that you should find helpful
+#!/usr/bin/python
 
-# import scraperwiki
-# import lxml.html
-#
-# # Read in a page
-# html = scraperwiki.scrape("http://foo.com")
-#
-# # Find something on the page using css selectors
-# root = lxml.html.fromstring(html)
-# root.cssselect("div[align='left']")
-#
-# # Write out to the sqlite database using scraperwiki library
-# scraperwiki.sqlite.save(unique_keys=['name'], data={"name": "susan", "occupation": "software developer"})
-#
-# # An arbitrary query against the database
-# scraperwiki.sql.select("* from data where 'name'='peter'")
+import time
+import bs4
+import urllib2
+from pprint import pprint
 
-# You don't have to do things with the ScraperWiki and lxml libraries.
-# You can use whatever libraries you want: https://morph.io/documentation/python
-# All that matters is that your final data is written to an SQLite database
-# called "data.sqlite" in the current working directory which has at least a table
-# called "data".
+def download_page(url):
+    retry = 0
+    while retry < 5:
+        try:
+            print "Downloading", url
+            return bs4.BeautifulSoup(urllib2.urlopen(url).read())
+            break
+        except urllib2.HTTPError, e:
+            print "Failed to get", repr(url), "retrying"
+            retry += 1
+        except:
+            print "Failed to get", repr(url)
+            raise
+    else:
+        raise IOError("Failed to get %r", url)
+
+page = download_page("https://www.crowdsupply.com/numato-lab/opsis")
+project = page.find('section', attrs={'class':'section-project'})
+
+facts = [" ".join(fact.text.split()).strip() for fact in project.findAll(attrs={'class': 'fact'})]
+
+left, percent_funded, pledges = facts
+
+pledged = project.find(attrs={'class': 'project-pledged'}).text.strip()
+goal = project.find(attrs={'class': 'project-goal'}).text.strip()
+
+print ",".join([str(time.time()), pledged, goal, left, percent_funded, pledges])
+
+data={
+  'time': time.time(), 
+  'pledged': int(pledged.split()[0][1:].replace(',', '')),
+  'goal': int(goal.split()[1][1:].replace(',', '')), 
+  'percent_funded': int(percent_funded.split()[0][:-1]),
+  'pledges': int(pledges.split()[0])}
+print data
+
+scraperwiki.sqlite.save()
