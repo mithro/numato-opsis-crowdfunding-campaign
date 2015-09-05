@@ -90,6 +90,6 @@ file('badge.html', 'w').write(page)
 
 try:
   import scraperwiki
-  scraperwiki.sqlite.save(unique_keys=['name'], data=data)
+  scraperwiki.sqlite.save(unique_keys=['url'], data=data)
 except ImportError:
   pass
