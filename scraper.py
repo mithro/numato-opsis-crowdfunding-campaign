@@ -62,7 +62,7 @@ page = """\
 
 <div class='image'>
  <a href="https://www.crowdsupply.com/numato-lab/opsis">
-   <img src="small.jpg">
+   <img src="https://www.crowdsupply.com/img/35c2/hdmi2usb-1-1_jpg_project-tile.jpg">
  </a>
 </div>
 <div class="message">
@@ -83,6 +83,7 @@ page = """\
 
 page = page.replace('<p class="project-pledged">','<div class="project-funds"><p class="project-pledged">')
 page = page.replace('<div class="factoids">', '</div><div class="factoids">')
+page = page.replace("text=Check+out+this+Crowd+Supply+project", "text=Support+on+Crowd+Supply+the+@numatolab+Opsis+board,+a+new+open+video+platform!")
 file('badge.html', 'w').write(page)
 
 import scraperwiki
