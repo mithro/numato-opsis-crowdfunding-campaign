@@ -10,7 +10,7 @@ def download_page(url):
     while retry < 5:
         try:
             print "Downloading", url
-            return bs4.BeautifulSoup(urllib2.urlopen(url).read())
+            return bs4.BeautifulSoup(urllib2.urlopen(url).read().decode('utf-8'))
             break
         except urllib2.HTTPError, e:
             print "Failed to get", repr(url), "retrying"
@@ -43,13 +43,47 @@ data={
   'left': left,
   'ends': ends,
 }
-print data
-print
-print "%(pledges)i pledges - $%(pledged)i of $%(goal)i (%(percent_funded)s%%) - Ends %(ends)s (%(left)s)" % data
-print
+import json
+json.dump(data, file('data.json','w'))
+
 project_box = page.find('div', attrs={'class': 'project-block'})
-print project_box
-print
+
+print "%(pledges)i pledges - $%(pledged)i of $%(goal)i (%(percent_funded)s%%) - Ends %(ends)s (%(left)s)" % data
+
+page = """\
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<div class='container'>
+<div class='crowdsupply-box'>
+
+<div class='image'>
+ <a href="https://www.crowdsupply.com/numato-lab/opsis">
+   <img src="small.jpg">
+ </a>
+</div>
+<div class="message">
+ The <a href="http://hdmi2usb.tv/numato-opsis">Numato Opsis</a>, the first open hardware for the <a href="http://hdmi2usb.tv">HDMI2USB.tv</a> firmware,<br>
+ <a href="https://www.crowdsupply.com/numato-lab/opsis">
+ Can now be ordered on 
+   <img src="https://www.crowdsupply.com/_teal/images/crowd-supply-logo-light@2x.png" style="padding: 2px; height: 2em; vertical-align: middle;">
+ </a>
+</div>
+
+%(project_box)s
+
+<div class='end'></div>
+</div>
+</div>
+</body>
+""".encode('utf-8') % locals()
+
+page = page.replace('<p class="project-pledged">','<div class="project-funds"><p class="project-pledged">')
+page = page.replace('<div class="factoids">', '</div><div class="factoids">')
+file('badge.html', 'w').write(page)
 
 import scraperwiki
 scraperwiki.sqlite.save(data=data)
