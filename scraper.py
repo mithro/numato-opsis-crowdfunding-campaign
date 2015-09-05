@@ -10,7 +10,7 @@ def download_page(url):
     while retry < 5:
         try:
             print "Downloading", url
-            return bs4.BeautifulSoup(urllib2.urlopen(url).read().decode('utf-8'))
+            return bs4.BeautifulSoup(urllib2.urlopen(url).read().decode('utf-8'), "lxml")
             break
         except urllib2.HTTPError, e:
             print "Failed to get", repr(url), "retrying"
@@ -90,6 +90,6 @@ file('badge.html', 'w').write(page)
 
 try:
   import scraperwiki
-  scraperwiki.sqlite.save(unique_keys=['url'], data=data)
+  scraperwiki.sqlite.save(unique_keys=['url', 'time'], data=data)
 except ImportError:
   pass
