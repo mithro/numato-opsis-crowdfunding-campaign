@@ -21,7 +21,8 @@ def download_page(url):
     else:
         raise IOError("Failed to get %r", url)
 
-page = download_page("https://www.crowdsupply.com/numato-lab/opsis")
+url = "https://www.crowdsupply.com/numato-lab/opsis"
+page = download_page(url)
 project = page.find('section', attrs={'class':'section-project'})
 
 facts = [" ".join(fact.text.split()).strip() for fact in project.findAll(attrs={'class': 'fact'})]
@@ -35,6 +36,7 @@ goal = project.find(attrs={'class': 'project-goal'}).text.strip()
 ends = page.find(attrs={'class': 'project-remind-me'}).find('p').text.split(' on ')[-1]
 
 data={
+  'url': url, 
   'time': time.time(), 
   'pledged': int(pledged.split()[0][1:].replace(',', '')),
   'goal': int(goal.split()[1][1:].replace(',', '')), 
@@ -86,5 +88,8 @@ page = page.replace('<div class="factoids">', '</div><div class="factoids">')
 page = page.replace("text=Check+out+this+Crowd+Supply+project", "text=Support+on+Crowd+Supply+the+@numatolab+Opsis+board,+a+new+open+video+platform!")
 file('badge.html', 'w').write(page)
 
-import scraperwiki
-scraperwiki.sqlite.save(data=data)
+try:
+  import scraperwiki
+  scraperwiki.sqlite.save(unique_keys=['name'], data=data)
+except ImportError:
+  pass
