@@ -41,4 +41,5 @@ data={
   'pledges': int(pledges.split()[0])}
 print data
 
-scraperwiki.sqlite.save()
+import scraperwiki
+scraperwiki.sqlite.save(data=data)
